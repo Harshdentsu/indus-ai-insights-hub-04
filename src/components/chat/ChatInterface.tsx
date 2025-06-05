@@ -153,7 +153,19 @@ const ChatInterface = ({ user }: ChatInterfaceProps) => {
                             ? 'bg-blue-600 text-white ml-auto' 
                             : 'bg-gray-100 text-gray-900'
                         }`}>
-                          <ReactMarkdown className="prose prose-sm max-w-none [&>*]:text-inherit">
+                          <ReactMarkdown 
+                            components={{
+                              p: ({ children }) => <p className="prose prose-sm max-w-none text-inherit">{children}</p>,
+                              strong: ({ children }) => <strong className="text-inherit">{children}</strong>,
+                              em: ({ children }) => <em className="text-inherit">{children}</em>,
+                              ul: ({ children }) => <ul className="prose prose-sm max-w-none text-inherit list-disc list-inside">{children}</ul>,
+                              ol: ({ children }) => <ol className="prose prose-sm max-w-none text-inherit list-decimal list-inside">{children}</ol>,
+                              li: ({ children }) => <li className="text-inherit">{children}</li>,
+                              h1: ({ children }) => <h1 className="text-inherit font-bold text-lg">{children}</h1>,
+                              h2: ({ children }) => <h2 className="text-inherit font-bold text-base">{children}</h2>,
+                              h3: ({ children }) => <h3 className="text-inherit font-semibold">{children}</h3>
+                            }}
+                          >
                             {message.content}
                           </ReactMarkdown>
                         </div>

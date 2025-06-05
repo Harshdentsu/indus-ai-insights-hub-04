@@ -1,8 +1,8 @@
-
 import { UserRole } from '@/types/auth';
 import { QueryResponse } from '@/types/data';
 import { generateMockData } from '@/data/mockDataGenerator';
 import { vectorService } from './vectorService';
+import { analyticsService } from './analyticsService';
 
 // Enhanced AI service with vector database integration
 export const queryAI = async (query: string, userRole: UserRole): Promise<QueryResponse> => {
@@ -274,8 +274,15 @@ ${sortedProducts.map(([product, data]) =>
 
   const processingTime = Date.now() - startTime;
 
-  // Store query for learning (in real implementation)
-  console.log(`Query processed: "${query}" -> Type: ${queryType}, Time: ${processingTime}ms`);
+  // Log query for analytics
+  analyticsService.logQuery({
+    query,
+    userRole,
+    queryType,
+    processingTime,
+    vectorResults: vectorResults.length,
+    topSimilarity: topResult?.similarity || 0
+  });
 
   return {
     response,
@@ -283,9 +290,7 @@ ${sortedProducts.map(([product, data]) =>
     metadata: {
       queryType,
       processingTime,
-      confidence: 0.85 + Math.random() * 0.1,
-      vectorResults: vectorResults.length,
-      topSimilarity: topResult?.similarity || 0
+      confidence: 0.85 + Math.random() * 0.1
     }
   };
 };
