@@ -51,6 +51,8 @@ const LoginDialog = ({ onLogin }: LoginDialogProps) => {
     }
   };
 
+  const RoleIcon = roleConfig[role].icon;
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -106,7 +108,7 @@ const LoginDialog = ({ onLogin }: LoginDialogProps) => {
             <Card className={`${roleConfig[role].bgColor} border-0`}>
               <CardContent className="p-4">
                 <div className="flex items-start gap-3">
-                  <roleConfig[role].icon className={`h-5 w-5 ${roleConfig[role].color} mt-0.5`} />
+                  <RoleIcon className={`h-5 w-5 ${roleConfig[role].color} mt-0.5`} />
                   <div>
                     <div className={`font-medium ${roleConfig[role].color} mb-1`}>
                       {role.replace('_', ' ').toUpperCase()}
