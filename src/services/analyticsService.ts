@@ -1,112 +1,42 @@
+
 interface QueryLog {
-  id: string;
   query: string;
   userRole: string;
   queryType: string;
-  timestamp: Date;
   processingTime: number;
-  confidence: number;
   vectorResults: number;
+  topSimilarity: number;
+  timestamp: Date;
 }
 
 class AnalyticsService {
   private queryLogs: QueryLog[] = [];
-  private readonly MAX_LOGS = 1000;
 
-  public logQuery(
-    query: string,
-    userRole: string,
-    queryType: string,
-    processingTime: number,
-    confidence: number,
-    vectorResults: number
-  ): void {
-    const log: QueryLog = {
-      id: `log_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      query,
-      userRole,
-      queryType,
-      timestamp: new Date(),
-      processingTime,
-      confidence,
-      vectorResults
+  logQuery(params: Omit<QueryLog, 'timestamp'>) {
+    const logEntry: QueryLog = {
+      ...params,
+      timestamp: new Date()
     };
-
-    this.queryLogs.unshift(log);
     
-    // Keep only recent logs
-    if (this.queryLogs.length > this.MAX_LOGS) {
-      this.queryLogs = this.queryLogs.slice(0, this.MAX_LOGS);
-    }
-
-    console.log('Query logged:', log);
+    this.queryLogs.push(logEntry);
+    console.log('Query logged:', logEntry);
   }
 
-  public getQueryStats(): {
-    totalQueries: number;
-    avgProcessingTime: number;
-    avgConfidence: number;
-    queryTypeDistribution: Record<string, number>;
-    recentQueries: QueryLog[];
-  } {
-    if (this.queryLogs.length === 0) {
-      return {
-        totalQueries: 0,
-        avgProcessingTime: 0,
-        avgConfidence: 0,
-        queryTypeDistribution: {},
-        recentQueries: []
-      };
-    }
-
-    const totalQueries = this.queryLogs.length;
-    const avgProcessingTime = this.queryLogs.reduce((sum, log) => sum + log.processingTime, 0) / totalQueries;
-    const avgConfidence = this.queryLogs.reduce((sum, log) => sum + log.confidence, 0) / totalQueries;
-    
-    const queryTypeDistribution = this.queryLogs.reduce((acc, log) => {
-      acc[log.queryType] = (acc[log.queryType] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
-
+  getQueryStats() {
     return {
-      totalQueries,
-      avgProcessingTime,
-      avgConfidence,
-      queryTypeDistribution,
-      recentQueries: this.queryLogs.slice(0, 10)
+      totalQueries: this.queryLogs.length,
+      avgProcessingTime: this.queryLogs.reduce((sum, log) => sum + log.processingTime, 0) / this.queryLogs.length,
+      queryTypes: this.queryLogs.reduce((acc, log) => {
+        acc[log.queryType] = (acc[log.queryType] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>)
     };
   }
 
-  public getUserStats(userRole: string): {
-    userQueries: number;
-    favoriteQueryType: string;
-    avgConfidence: number;
-  } {
-    const userLogs = this.queryLogs.filter(log => log.userRole === userRole);
-    
-    if (userLogs.length === 0) {
-      return {
-        userQueries: 0,
-        favoriteQueryType: 'none',
-        avgConfidence: 0
-      };
-    }
-
-    const typeCount = userLogs.reduce((acc, log) => {
-      acc[log.queryType] = (acc[log.queryType] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
-
-    const favoriteQueryType = Object.entries(typeCount)
-      .sort(([,a], [,b]) => b - a)[0]?.[0] || 'general';
-
-    const avgConfidence = userLogs.reduce((sum, log) => sum + log.confidence, 0) / userLogs.length;
-
-    return {
-      userQueries: userLogs.length,
-      favoriteQueryType,
-      avgConfidence
-    };
+  getRecentQueries(limit: number = 10) {
+    return this.queryLogs
+      .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
+      .slice(0, limit);
   }
 }
 
