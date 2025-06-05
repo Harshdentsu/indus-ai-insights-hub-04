@@ -153,7 +153,7 @@ const ChatInterface = ({ user }: ChatInterfaceProps) => {
                             ? 'bg-blue-600 text-white ml-auto' 
                             : 'bg-gray-100 text-gray-900'
                         }`}>
-                          <ReactMarkdown className="prose prose-sm max-w-none">
+                          <ReactMarkdown className="prose prose-sm max-w-none [&>*]:text-inherit">
                             {message.content}
                           </ReactMarkdown>
                         </div>
